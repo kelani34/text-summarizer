@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   const instructionMessage: ChatCompletionRequestMessage = {
     role: "system",
     content:
-      "Your task is to employ a highly advanced AI text summarizer capable of distilling intricate narratives into refined and nuanced summaries. The summarizer should refrain from generic attributions such as 'the speaker' and instead employ a more sophisticated approach to convey information.",
+      "Your task is to employ a highly advanced AI text summarizer capable of distilling intricate narratives into refined and nuanced summaries. The summarizer should refrain from generic attributions such as 'the speaker' and instead employ a more sophisticated approach to convey information. your response should be short and precise",
   };
   try {
     const body = await req.json();
