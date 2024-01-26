@@ -1,5 +1,6 @@
 "use client";
 
+import { Toaster } from "@/components/ui/sonner.component.ui";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 
@@ -10,6 +11,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
     <>
       <QueryClientProvider client={queryClient}>
         <ReactQueryDevtools initialIsOpen={false} />
+        <Toaster />
         {children}
       </QueryClientProvider>
     </>

@@ -23,6 +23,7 @@ import extractTextFromPDF from "@/utils/extract-text-from-pdf";
 import { IconPlaylistX } from "@tabler/icons-react";
 import { AnimatedTooltip } from "@/components/ui/animated-tooltip.component.ui";
 import { Loader } from "@/components/loader.component";
+import { toast } from "sonner";
 
 const MAX_MESSAGE_LENGTH = 5000;
 export default function Home() {
@@ -53,7 +54,6 @@ export default function Home() {
   });
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values, "kl");
     try {
       setIsLoading(true);
       setError("");
@@ -93,11 +93,11 @@ export default function Home() {
           setTimeout(() => {
             setCopiedtext(false);
           }, 2000);
-          console.log("Text copied to clipboard:", text);
+          toast(`Text copied to clipboard: ${text}`);
         },
         (error) => {
           setCopiedtext(false);
-          console.error("Unable to copy text to clipboard:", error);
+          toast(`Unable to copy text to clipboard: ${error}`);
         }
       );
     }
@@ -152,7 +152,7 @@ export default function Home() {
           const pdfBuffer = await readFileAsBuffer(file);
           await getTextFromPdf(pdfBuffer);
         } catch (error) {
-          console.error("Error uploading PDF:", error);
+          toast(`Error uploading PDF: ${error}`);
         }
       }
     }
@@ -192,13 +192,13 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                  <FormControl className="m-0 p-0">
+                  <FormControl className="m-0 p-0 ">
                     <Textarea
                       className="bg-transparent resize-none  p-4 outline-none w-full h-full border-none"
                       disabled={isLoading}
                       placeholder="Enter a text you want to summarise"
                       value={formText}
-                      style={{ margin: "0px !important" }}
+                      style={{ margin: "0px" }}
                       onChange={(e) => {
                         field.onChange(e);
                         setFormText(
