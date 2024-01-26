@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label.component.ui";
 import extractTextFromPDF from "@/utils/extract-text-from-pdf";
 import { IconPlaylistX } from "@tabler/icons-react";
 import { AnimatedTooltip } from "@/components/ui/animated-tooltip.component.ui";
+import { Loader } from "@/components/loader.component";
 
 const MAX_MESSAGE_LENGTH = 5000;
 export default function Home() {
@@ -227,6 +228,12 @@ export default function Home() {
             readOnly
             className="bg-transparent resize-none  outline-none p-4 h-full w-full"
           />
+          {isLoading && (
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <Loader />
+            </div>
+          )}
+
           <div className="absolute top-2 right-2 flex gap-3 group-hover:bg-gray-400 rounded px-1">
             <AnimatedTooltip name={copiedText ? "Copied" : "Copy text"}>
               {copiedText ? (
