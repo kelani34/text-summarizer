@@ -159,7 +159,7 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center gap-6 p-24 container mx-auto">
+    <main className="flex min-h-screen flex-col items-center gap-6 md:p-24 container mx-auto justify-center ">
       <input
         id="upload-pdf"
         type="file"
@@ -167,15 +167,17 @@ export default function Home() {
         className="hidden"
         onChange={handleFileChange}
       />
-      <h1 className="text-6xl font-semibold ">AI Text Summarizer</h1>
-      <div className="flex rounded-md border min-h-96 w-full border-opacity-40 border-gray-200  ">
+      <h1 className="md:text-6xl md:font-semibold text-center text-3xl">
+        AI Text Summarizer
+      </h1>
+      <div className="flex md:flex-row flex-col-reverse rounded-md border min-h-[calc(100vh-30vh)] md:min-h-96 w-full border-opacity-40 border-gray-200  ">
         <Form {...form}>
           <form className="flex-1 " onSubmit={form.handleSubmit(handleSubmit)}>
             <FormField
               name="prompt"
               render={({ field }) => (
-                <FormItem className="h-full group relative">
-                  <div className="hover:bg-gray-500/40 group-hover:block group-hover:bg-gray-400  gap-3 group/btn hidden absolute top-2 right-2 cursor-pointer rounded-sm px-1 active:rounded-md duration-100 ">
+                <FormItem className="h-full md:group relative">
+                  <div className="hover:bg-gray-500/40 group-hover:block md:group-hover:bg-gray-400  bg-gray-400  gap-3 group/btn md:hidden absolute top-2 right-2 cursor-pointer rounded-sm px-1 active:rounded-md duration-100 ">
                     <div className="relative">
                       <div className="flex gap-3 items-center">
                         <Label htmlFor="upload-pdf">
@@ -234,25 +236,25 @@ export default function Home() {
             </div>
           )}
 
-          <div className="absolute top-2 right-2 flex gap-3 group-hover:bg-gray-400 rounded px-1">
+          <div
+            className={`absolute top-2 right-2 flex gap-3 md:group-hover:bg-gray-400  bg-gray-400 rounded px-1 ${
+              !text.content ? "hidden" : "group-hover:flex md:hidden "
+            }`}
+          >
             <AnimatedTooltip name={copiedText ? "Copied" : "Copy text"}>
               {copiedText ? (
                 <IconCheck className="text-green-500 bg-slate-500 h-6 w-6 transition duration-200 p-1 rounded " />
               ) : (
                 <IconClipboard
                   onClick={handleCopyResult}
-                  className={`   h-6 w-6 transition duration-200 cursor-pointer  hover:text-white p-1 rounded text-neutral-300 active:text-neutral-400  ${
-                    !text.content ? "hidden" : "group-hover:block hidden"
-                  }`}
+                  className={`   h-6 w-6 transition duration-200 cursor-pointer  hover:text-white p-1 rounded text-neutral-300 active:text-neutral-400  `}
                 />
               )}
             </AnimatedTooltip>
             <AnimatedTooltip name="Clear result">
               <IconPlaylistX
                 onClick={handleResultClear}
-                className={`  text-neutral-300  h-6 w-6 transition duration-200 cursor-pointer active:text-neutral-400 hover:text-white p-1 rounded ${
-                  !text.content ? "hidden" : "group-hover:block hidden"
-                }`}
+                className={`  text-neutral-300  h-6 w-6 transition duration-200 cursor-pointer active:text-neutral-400 hover:text-white p-1 rounded `}
               />
             </AnimatedTooltip>
           </div>
