@@ -3,7 +3,7 @@
 import { BackgroundBeams } from "@/components/ui/background-beams.component.ui";
 import ShimmerButton from "@/components/ui/shimmer-button.component.ui";
 import { useRef, useState } from "react";
-import { IconClipboard, IconFileUpload, IconUpload } from "@tabler/icons-react";
+import { IconCheck, IconClipboard, IconFileUpload } from "@tabler/icons-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -20,6 +20,8 @@ import { Textarea } from "@/components/ui/textarea.component.ui";
 // import { Worker, Viewer } from "@react-pdf-viewer/core";
 import { Label } from "@/components/ui/label.component.ui";
 import extractTextFromPDF from "@/utils/extract-text-from-pdf";
+import { IconPlaylistX } from "@tabler/icons-react";
+import { AnimatedTooltip } from "@/components/ui/animated-tooltip.component.ui";
 
 const MAX_MESSAGE_LENGTH = 5000;
 export default function Home() {
@@ -30,6 +32,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [extractedText, setExtractedText] = useState<string>("");
   const [formText, setFormText] = useState<string>("");
+  const [copiedText, setCopiedtext] = useState<boolean>(false);
   const [text, setText] = useState<ChatCompletionRequestMessage>({
     role: "user",
     content: "",
@@ -49,6 +52,7 @@ export default function Home() {
   });
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    console.log(values, "kl");
     try {
       setIsLoading(true);
       setError("");
@@ -80,10 +84,36 @@ export default function Home() {
     }
   };
 
+  const copyToClipboard = (text: string | undefined) => {
+    if (text) {
+      navigator.clipboard.writeText(text).then(
+        () => {
+          setCopiedtext(true);
+          setTimeout(() => {
+            setCopiedtext(false);
+          }, 2000);
+          console.log("Text copied to clipboard:", text);
+        },
+        (error) => {
+          setCopiedtext(false);
+          console.error("Unable to copy text to clipboard:", error);
+        }
+      );
+    }
+  };
   const handleFormClear = () => {
     form.reset();
+    setFormText("");
+    setExtractedText("");
   };
 
+  const handleResultClear = () => {
+    setText({ role: "system", content: "" });
+  };
+
+  const handleCopyResult = () => {
+    copyToClipboard(text.content);
+  };
   const readFileAsBuffer = (file: Blob) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -103,7 +133,7 @@ export default function Home() {
     formData.append("pdf", new Blob([pdfBuffer], { type: "application/pdf" }));
 
     const result = await extractTextFromPDF(pdfBuffer);
-
+    handleResultClear();
     setExtractedText(result);
     setFormText(result);
   };
@@ -144,18 +174,23 @@ export default function Home() {
               name="prompt"
               render={({ field }) => (
                 <FormItem className="h-full group relative">
-                  <Label
-                    htmlFor="upload-pdf"
-                    className="hover:bg-gray-500/40 text-neutral-300 group-hover:block group/btn hidden absolute top-2 right-2 cursor-pointer p-1 rounded-sm active:rounded-md duration-100 "
-                  >
+                  <div className="hover:bg-gray-500/40 group-hover:block group-hover:bg-gray-400  gap-3 group/btn hidden absolute top-2 right-2 cursor-pointer rounded-sm px-1 active:rounded-md duration-100 ">
                     <div className="relative">
-                      <IconFileUpload className="  h-4 w-4 transition duration-200 cursor-pointer active:text-neutral-400 " />
-
-                      <div className="text-xs hidden absolute group-hover/btn:block w-max -bottom-1 right-6 transform translate-x-full group-hover/btn:translate-x-0 transition-transform bg-stone-600 px-2 py-1 rounded">
-                        Upload pdf file format
+                      <div className="flex gap-3 items-center">
+                        <Label htmlFor="upload-pdf">
+                          <AnimatedTooltip name="Upload pdf file format">
+                            <IconFileUpload className=" text-neutral-300  h-6 w-6 transition duration-200 cursor-pointer hover:text-white p-1 active:text-neutral-400 " />
+                          </AnimatedTooltip>
+                        </Label>
+                        <AnimatedTooltip name="Clear text">
+                          <IconPlaylistX
+                            onClick={handleFormClear}
+                            className=" text-neutral-300  h-6 w-6 transition duration-200 cursor-pointer hover:text-white p-1  active:text-neutral-400  rounded"
+                          />
+                        </AnimatedTooltip>
                       </div>
                     </div>
-                  </Label>
+                  </div>
                   <FormControl className="m-0 p-0">
                     <Textarea
                       className="bg-transparent resize-none  p-4 outline-none w-full h-full border-none"
@@ -165,15 +200,23 @@ export default function Home() {
                       style={{ margin: "0px !important" }}
                       onChange={(e) => {
                         field.onChange(e);
-                        setFormText(e.target.value);
+                        setFormText(
+                          extractedText ? extractedText : e.target.value
+                        );
                       }}
-                      // {...field}
                     />
                   </FormControl>
                 </FormItem>
               )}
             />
-            <ShimmerButton className="mt-2">Summarize</ShimmerButton>
+            <ShimmerButton
+              onClick={() => {
+                if (extractedText) handleSubmit({ prompt: extractedText });
+              }}
+              className="mt-2"
+            >
+              Summarize
+            </ShimmerButton>
           </form>
         </Form>
         <hr className="border-[.5px] border-opacity-40 border-gray-200 h-auto " />
@@ -184,11 +227,28 @@ export default function Home() {
             readOnly
             className="bg-transparent resize-none  outline-none p-4 h-full w-full"
           />
-          <IconClipboard
-            className={` absolute top-2 right-2 text-neutral-300  h-4 w-4 transition duration-200 cursor-pointer active:text-neutral-400 ${
-              !text.content ? "hidden" : "group-hover:block hidden"
-            }`}
-          />
+          <div className="absolute top-2 right-2 flex gap-3 group-hover:bg-gray-400 rounded px-1">
+            <AnimatedTooltip name={copiedText ? "Copied" : "Copy text"}>
+              {copiedText ? (
+                <IconCheck className="text-green-500 bg-slate-500 h-6 w-6 transition duration-200 p-1 rounded " />
+              ) : (
+                <IconClipboard
+                  onClick={handleCopyResult}
+                  className={`   h-6 w-6 transition duration-200 cursor-pointer  hover:text-white p-1 rounded text-neutral-300 active:text-neutral-400  ${
+                    !text.content ? "hidden" : "group-hover:block hidden"
+                  }`}
+                />
+              )}
+            </AnimatedTooltip>
+            <AnimatedTooltip name="Clear result">
+              <IconPlaylistX
+                onClick={handleResultClear}
+                className={`  text-neutral-300  h-6 w-6 transition duration-200 cursor-pointer active:text-neutral-400 hover:text-white p-1 rounded ${
+                  !text.content ? "hidden" : "group-hover:block hidden"
+                }`}
+              />
+            </AnimatedTooltip>
+          </div>
         </div>
       </div>
       <BackgroundBeams />
