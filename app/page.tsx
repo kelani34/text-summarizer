@@ -23,10 +23,11 @@ import extractTextFromPDF from "@/utils/extract-text-from-pdf";
 
 const MAX_MESSAGE_LENGTH = 5000;
 export default function Home() {
+  const router = useRouter();
+
   const summaryRef = useRef<HTMLTextAreaElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [selectedFile, setSelectedFile] = useState<File | undefined>();
   const [extractedText, setExtractedText] = useState<string>("");
   const [formText, setFormText] = useState<string>("");
   const [text, setText] = useState<ChatCompletionRequestMessage>({
@@ -46,8 +47,6 @@ export default function Home() {
       prompt: "",
     },
   });
-
-  const router = useRouter();
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -107,19 +106,6 @@ export default function Home() {
 
     setExtractedText(result);
     setFormText(result);
-    try {
-      const res = await fetch("api/extract-pdf", {
-        method: "POST",
-        body: formData,
-        headers: {
-          "Content-Type": "application/pdf",
-        },
-      });
-
-      const data = await res.json();
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   const handleFileChange = async (
@@ -198,7 +184,11 @@ export default function Home() {
             readOnly
             className="bg-transparent resize-none  outline-none p-4 h-full w-full"
           />
-          <IconClipboard className=" absolute top-2 right-2 text-neutral-300 group-hover:block hidden h-4 w-4 transition duration-200 cursor-pointer active:text-neutral-400" />
+          <IconClipboard
+            className={` absolute top-2 right-2 text-neutral-300  h-4 w-4 transition duration-200 cursor-pointer active:text-neutral-400 ${
+              !text.content ? "hidden" : "group-hover:block hidden"
+            }`}
+          />
         </div>
       </div>
       <BackgroundBeams />
